@@ -1,0 +1,80 @@
+# Blocked words for creature and artist names. Loaded once at startup.
+#
+# One entry per line; lines starting with # are comments.
+#   word    blocks the whole word only ("cock" blocks "cock" but not "cockle")
+#   *word   also blocks it inside other words ("*fuck" blocks "fuckfish")
+#
+# Matching ignores case, accents, letter swaps (0→o 1→i 3→e 4→a 5→s 7→t @→a $→s)
+# and stretched letters. Use * sparingly: sea creatures have names like "sea
+# cucumber", "shell" and "cockle" that contain short rude words.
+#
+# This is a first line of defense only. The moderator still sees every name.
+
+*fuck
+*shit
+*cunt
+*bitch
+*asshole
+*bastard
+*whore
+*slut
+*dildo
+*porn
+*penis
+*vagina
+*pussy
+wank
+wanker
+twat
+*jizz
+*nigger
+*nigga
+*faggot
+*retard
+rapist
+*hitler
+*nazi
+*kkk
+
+anal
+anus
+arse
+ass
+balls
+boner
+boob
+boobs
+bollocks
+butthole
+clit
+cock
+cocks
+coon
+crap
+cum
+dick
+dicks
+douche
+dyke
+fag
+fags
+hoes
+horny
+kike
+milf
+nude
+nudes
+piss
+prick
+pube
+rape
+raped
+sex
+sexy
+spic
+tit
+tits
+titty
+tranny
+wtf
+stfu

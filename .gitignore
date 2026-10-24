@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+TestResults/
+*.user
+.vs/
+.vscode/
+.idea/
+
+# Runtime data: creature drawings, metadata, snapshots, saved settings
+data/
+
+# Local secrets and overrides (admin PIN)
+appsettings.Local.json

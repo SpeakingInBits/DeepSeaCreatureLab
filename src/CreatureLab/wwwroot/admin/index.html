@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#041a33">
+  <meta name="robots" content="noindex">
+  <title>Admin · Deep Sea Creature Lab</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/shared/theme.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <section id="lock-view" class="lock">
+    <form id="pin-form" class="lock-card">
+      <span class="badge">Crew only</span>
+      <h1>Creature Lab Admin</h1>
+      <label for="pin">Admin PIN</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      <p class="error" id="pin-error" role="alert" hidden></p>
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <header class="topbar">
+      <div class="title">
+        <strong>Creature Lab Admin</strong>
+        <span class="conn" id="conn" data-state="connecting" title="Live connection"></span>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button type="button" role="tab" class="tab" data-tab="pending" aria-selected="true">Pending <span class="count" id="pending-count">0</span></button>
+        <button type="button" role="tab" class="tab" data-tab="tank" aria-selected="false">In tank <span class="count" id="tank-count">0</span></button>
+        <button type="button" role="tab" class="tab" data-tab="settings" aria-selected="false">Settings</button>
+      </nav>
+    </header>
+
+    <div class="banner" id="auto-banner" hidden>
+      AUTO-APPROVE ON · new drawings go straight to the tank
+      <button type="button" class="btn small" id="auto-off">Turn off</button>
+    </div>
+
+    <main>
+      <section id="tab-pending" class="panel">
+        <p class="empty" id="pending-empty">No drawings waiting. New ones show up here instantly.</p>
+        <div class="grid" id="pending-list"></div>
+      </section>
+
+      <section id="tab-tank" class="panel" hidden>
+        <p class="hint">Tap <strong>Remove</strong> twice to pull a creature off the screen right away.</p>
+        <p class="empty" id="tank-empty">The tank is empty.</p>
+        <div class="grid small" id="tank-list"></div>
+      </section>
+
+      <section id="tab-settings" class="panel" hidden>
+        <div class="setting">
+          <div class="setting-text">
+            <h2>Auto-approve</h2>
+            <p>Skip the queue during slow periods. Remove still works.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="auto-approve">
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Auto-approve</span>
+          </label>
+        </div>
+
+        <form class="setting stacked" id="url-form">
+          <div class="setting-text">
+            <h2>Public URL</h2>
+            <p>Paste the tunnel URL (e.g. https://….trycloudflare.com). The TV's QR code updates immediately.</p>
+          </div>
+          <div class="row">
+            <input id="public-url" type="url" inputmode="url" placeholder="https://example.trycloudflare.com" autocomplete="off" spellcheck="false">
+            <button type="submit" class="btn primary">Save</button>
+          </div>
+          <p class="note" id="url-note"></p>
+        </form>
+
+        <form class="setting stacked" id="snapshot-form">
+          <div class="setting-text">
+            <h2>Timed snapshots</h2>
+            <p>The TV saves a picture of the tank every few minutes for the time-lapse. 0 turns it off.</p>
+          </div>
+          <div class="row">
+            <input id="snapshot-interval" type="number" min="0" max="240" step="1" inputmode="numeric">
+            <span class="unit">minutes</span>
+            <button type="submit" class="btn primary">Save</button>
+          </div>
+          <div class="row">
+            <button type="button" class="btn" id="snapshot-now">Take snapshot now</button>
+          </div>
+          <p class="note" id="snapshot-note"></p>
+        </form>
+
+        <div class="setting stacked">
+          <div class="setting-text">
+            <h2>Gallery</h2>
+            <p>Every approved drawing, all snapshots, and a ready-to-open gallery page, in one zip. Includes artist names, so check it before posting publicly.</p>
+          </div>
+          <div class="row">
+            <button type="button" class="btn primary" id="download">Download gallery</button>
+          </div>
+          <p class="note" id="download-note"></p>
+        </div>
+
+        <div class="setting">
+          <div class="setting-text">
+            <h2>Sound on new drawings</h2>
+            <p>A short beep (and a buzz on phones) when something lands in the queue.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="sound" checked>
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Sound on new drawings</span>
+          </label>
+        </div>
+
+        <div class="setting stacked">
+          <h2>Right now</h2>
+          <dl class="stats" id="stats">
+            <div><dt>Phones connected</dt><dd data-stat="connectedPhones">–</dd></div>
+            <div><dt>Drawn today</dt><dd data-stat="submissionsToday">–</dd></div>
+            <div><dt>In the tank</dt><dd data-stat="inTank">–</dd></div>
+            <div><dt>Messages / min</dt><dd data-stat="messagesPerMinute">–</dd></div>
+          </dl>
+        </div>
+
+        <button type="button" class="btn" id="lock">Lock this device</button>
+      </section>
+    </main>
+  </div>
+
+  <template id="card-template">
+    <article class="card">
+      <div class="art"><img alt=""></div>
+      <div class="meta">
+        <strong class="name"></strong>
+        <span class="by"></span>
+        <span class="details"><span class="habitat"></span> · <time></time></span>
+      </div>
+      <div class="buttons"></div>
+    </article>
+  </template>
+
+  <script src="/lib/signalr/signalr.min.js"></script>
+  <script type="module" src="/admin/admin.js"></script>
+</body>
+</html>

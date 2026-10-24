@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CreatureLab/CreatureLab.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CreatureLab.Tests/CreatureLab.Tests.csproj" />
+  </Folder>
+</Solution>

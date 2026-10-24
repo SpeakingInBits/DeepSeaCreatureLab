@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "creature-lab",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/CreatureLab", "--launch-profile", "dev"],
+      "port": 5000
+    }
+  ]
+}
