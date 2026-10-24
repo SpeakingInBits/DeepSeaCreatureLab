@@ -272,6 +272,12 @@ back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 
 To start a fresh tank, stop the server and move the `data/` folder somewhere else.
 
+## How changes land
+
+`main` is protected: every change arrives as a pull request with one approving review (org
+admins can still push an urgent fix directly). Changes written by Claude Code come from the
+SpeakingInBits GitHub App (`speakinginbits-bot[bot]`), so a person reviews and approves each one.
+
 ## Project layout
 
 ```
