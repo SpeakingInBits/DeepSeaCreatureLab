@@ -280,6 +280,9 @@ To start a fresh tank, stop the server and move the `data/` folder somewhere els
 admins can still push an urgent fix directly). Changes written by Claude Code come from the
 SpeakingInBits GitHub App (`speakinginbits-bot[bot]`), so a person reviews and approves each one.
 
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) builds the app and runs
+`dotnet test` on Windows and Linux for every pull request and every push to `main`.
+
 ## Project layout
 
 ```
