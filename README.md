@@ -81,7 +81,8 @@ variable, using `__` for nesting (for example `RateLimit__MaxPerIpPerMinute=1000
 | `Moderation:MaxPending` | 100 | Queue limit, to protect the moderator |
 | `Moderation:ProfanityListPath` | `profanity.txt` | Blocked words for names (format explained at the top of the file) |
 | `RateLimit:SecondsPerDevice` | 30 | One release per phone every N seconds |
-| `RateLimit:MaxPerIpPerMinute` | 10 | Per network (campus Wi-Fi shares one IP), 0 turns it off |
+| `RateLimit:RequireConnection` | true | Only accept releases from a phone connected to the server (now or in the last 2 minutes); the draw page always is |
+| `RateLimit:MaxPerIpPerMinute` | 20 | Backstop per network (campus Wi-Fi shares one IP), 0 turns it off |
 | `Upload:MaxBytes` / `MaxDimension` / `MaxNameLength` | 256 KB / 512 px / 20 | Upload limits |
 | `Storage:DataPath` | `../../data` | Where drawings, metadata and snapshots go (relative to `src/CreatureLab`) |
 | `Snapshots:IntervalMinutes` | 5 | Timed tank snapshots for the time-lapse; 0 turns them off |
@@ -213,7 +214,8 @@ ignored. Press Alt+F4 to leave kiosk mode.
 | Phones | iPhone (Safari) and Android (Chrome) **on cellular**, through the tunnel |
 
 The load test simulates phones from one IP address, so start the server with a higher network limit
-first, for example `RateLimit__MaxPerIpPerMinute=1000`. The script reports how many phones heard
+first, for example `RateLimit__MaxPerIpPerMinute=1000`. Each simulated phone connects to the server
+before releasing, as the draw page does. The script reports how many phones heard
 their result back over SignalR and the submit latency.
 
 To try the draw page from a phone on the same Wi-Fi without a tunnel, start the server with

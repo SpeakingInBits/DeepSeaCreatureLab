@@ -8,7 +8,7 @@
 //
 //   dotnet run tools/LoadTest.cs -- --url https://xyz.trycloudflare.com --phones 50 --minutes 3 --pin 123456
 //
-// The server allows 10 submissions per IP per minute, and every simulated phone shares your
+// The server allows 20 submissions per IP per minute, and every simulated phone shares your
 // IP, so start the server with a higher limit first:  $env:RateLimit__MaxPerIpPerMinute = "1000"
 
 using System.Buffers.Binary;

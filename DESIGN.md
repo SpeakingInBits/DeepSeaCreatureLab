@@ -1,6 +1,6 @@
 # Engineering Design Document: Deep Sea Creature Lab
 
-> **Status:** Draft v0.7. Items marked **[TBD]** need a decision before or during the build.
+> **Status:** v0.8: build decisions from Oct 23 recorded (see §15 "Decided"). Items marked **[TBD]** need a decision before or during the build.
 > **Owner:** Joe (Computer Programming program)
 > **Event:** College Program Expo, **Wednesday, October 28, 2026, 3:00–6:00 PM**
 > **Build window:** Fri Oct 23 – Tue Oct 27 (about 5 days), part-time, alongside normal duties. Built by Joe with Claude Code.
@@ -64,7 +64,7 @@ No app install, no accounts, no hardware. Everything runs from one laptop at the
    - Both values are remembered on the device (`localStorage`, wrapped in try/catch) so a returning visitor's artist name is pre-filled.
 6. Taps **Release**. The page shows "Waiting for approval…".
 7. On approval, the page shows "Your creature is in the tank! Look at the TV." On rejection, it shows a friendly message and invites them to draw again.
-8. Rate limit: one submission per device every **30** seconds (configurable).
+8. Rate limit: one submission per device every **30** seconds (configurable). The page must also be connected to the server, which it is from the moment it opens (see §9).
 9. At any point after tapping **Release**, a **Save to my phone** button lets the visitor keep a copy of their creature (see §8.3.1).
 
 ### 6.2 Moderator
@@ -72,7 +72,7 @@ No app install, no accounts, no hardware. Everything runs from one laptop at the
 2. Sees a queue of pending drawings (image, creature name, artist name, habitat, time submitted), oldest first.
 3. Taps **Approve** or **Reject** on each. Approved creatures enter the tank immediately.
 4. Can view creatures currently in the tank and tap **Remove** on any of them.
-5. Can toggle **auto-approve** on or off (default OFF), e.g. during slow periods. Remove still works while auto-approve is on.
+5. Can toggle **auto-approve** on or off (default OFF), e.g. during slow periods. Remove still works while auto-approve is on. Auto-approve always comes back OFF after a server restart.
 
 ### 6.3 Display
 1. TV opens `/tank` in a fullscreen browser and stays there all day.
@@ -250,11 +250,11 @@ Where they appear:
 
 ### 8.5 Admin page (`/admin`)
 
-- PIN prompt; PIN set in `appsettings.json` or an environment variable. PIN sent as a header on admin REST calls and as an argument to `JoinAdmin`.
+- PIN prompt; PIN set in `appsettings.Local.json` (gitignored) or an environment variable. If neither is set, the server generates a 6-digit PIN, saves it in `data/admin-pin.txt` so a restart doesn't lock moderator phones out, and prints it to the server console. PIN sent as a header on admin REST calls and as an argument to `JoinAdmin`. After 5 wrong PINs in 10 minutes an IP is locked out for 10 minutes (never the laptop itself).
 - Pending queue as large cards with big Approve and Reject buttons (usable one-handed on a phone).
 - Badge with pending count, and an optional sound or vibration when new drawings arrive.
 - "In tank" list with Remove buttons.
-- Auto-approve toggle, default OFF. While on, the admin page shows a clear "AUTO-APPROVE ON" banner and the pending queue is bypassed.
+- Auto-approve toggle, default OFF. While on, the admin page shows a clear "AUTO-APPROVE ON" banner and the pending queue is bypassed. It is deliberately not saved: after a restart it is OFF again, so a crash can't leave the TV unmoderated. (The public URL and snapshot interval are saved in `data/settings.json`.)
 
 ### 8.6 Live system panel ("How it works")
 
@@ -295,8 +295,12 @@ Shown on the tank page to support the program pitch:
 
 - **Moderation:** approval queue by default; nothing reaches the TV without a staff tap.
 - **Admin access:** PIN-protected; the PIN is never shown on screen or committed to the repo.
-- **Upload validation:** PNG only (check magic bytes, not just content type); max **256 KB**; max **512×512**; decode server-side to confirm it is a valid image. Both name fields trimmed, length-limited, and HTML-encoded on display. Basic profanity word list applied to both name fields, kept in a plain text file the server loads at startup (easy to extend).
-- **Rate limiting:** per `clientId` and per IP (as seen through the tunnel's forwarded headers); one submission per **30** s, plus a global cap of pending items (e.g. 100) to protect the moderator.
+- **Upload validation:** PNG only (check magic bytes, not just content type); max **256 KB**; max **512×512**. Verified server-side without an image library: every chunk's checksum, the header's limits, no data after the end, and the pixel data inflated to exactly the size the header promises, with valid row filters. That catches damaged and disguised files without adding a dependency. Both name fields trimmed, length-limited, and HTML-encoded on display. Basic profanity word list applied to both name fields, kept in a plain text file the server loads at startup (easy to extend). Matching ignores case, accents, letter swaps (0→o, 4→a, …) and stretched letters. Plain entries match whole words only; entries marked `*` also match inside other words, so use `*` only for words that rarely appear inside innocent names ("wank" is inside "Swanky", "twat" inside "Saltwater", "rapist" inside "Therapist").
+- **Rate limiting,** in layers, all checked only after a submission passes validation (so fixing a rejected name doesn't cost a wait):
+  - **Per device:** one submission per **30** s per `clientId` (the random ID in the phone's `localStorage`).
+  - **Live connection:** the `clientId` must have a SignalR connection to the hub, now or within the last 2 minutes (a cellular blip doesn't block anyone). The draw page connects as soon as it opens; a script that only posts uploads is turned away.
+  - **Per network:** **20** submissions per minute per IP (as seen through the tunnel's forwarded headers). This is a backstop for devices that get a new `clientId` from a private window or cleared storage. It's loose because a whole campus Wi-Fi network shares one public IP.
+  - **Queue cap:** at most **100** pending items, to protect the moderator.
 - **Privacy:** no emails or accounts. The artist name is optional and free text; the phone UI and the sign both say "First name or nickname only." Artist names are included in the gallery export, so treat the export as something to share thoughtfully (e.g. check it before posting publicly).
 - **Tunnel exposure:** the public URL is reachable by anyone who has it during the event. Admin endpoints require the PIN. Shut the tunnel down after the event.
 
@@ -411,6 +415,13 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
 - Live system panel in v1. Gallery export and timed snapshots in v1.
 - Cloudflare quick tunnel as primary, Microsoft Dev Tunnel as prepared backup (§10); display runs on the server laptop via localhost.
 - Event: Wed Oct 28, 3–6 PM, 0–10 concurrent visitors, HD TV or wide-screen monitor.
+- Oct 23, during the build (details in §8.5 and §9):
+  - Rate limiting is layered: per device, live connection required, a loose per-network backstop (20/min, not one per 30 s, because campus Wi-Fi shares an IP), and the queue cap.
+  - Auto-approve is not saved; it is OFF after every restart.
+  - With no configured PIN, a generated PIN is saved in `data/admin-pin.txt` and reused.
+  - Word-list entries match whole words unless marked `*`.
+  - Uploads are verified structurally (checksums plus inflated size) rather than fully decoded; no image library.
+  - Repo: public at `SpeakingInBits/DeepSeaCreatureLab`; `main` requires one approving review. Claude Code's commits and PRs come from the SpeakingInBits GitHub App (`speakinginbits-bot[bot]`), and Joe reviews them.
 
 ---
 

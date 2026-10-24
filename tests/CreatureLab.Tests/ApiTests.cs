@@ -4,7 +4,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace CreatureLab.Tests;
 
@@ -21,7 +23,9 @@ public sealed class ApiTests : IDisposable
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
             .UseSetting("Storage:DataPath", _dir.Path)
             .UseSetting("Admin:Pin", Pin)
-            .UseSetting("Snapshots:IntervalMinutes", "0"));
+            .UseSetting("Snapshots:IntervalMinutes", "0")
+            .UseSetting("RateLimit:RequireConnection", "false")); // LiveConnectionTests covers it
+
         _client = _factory.CreateClient();
     }
 
@@ -257,5 +261,86 @@ public sealed class ApiTests : IDisposable
         Assert.Equal(HttpStatusCode.OK, res.StatusCode);
         Assert.Equal("text/html", res.Content.Headers.ContentType?.MediaType);
         Assert.True(res.Headers.Contains("Content-Security-Policy"));
+    }
+
+    internal static MultipartFormDataContent DrawingFor(string clientId) => Drawing(clientId: clientId);
+}
+
+/// <summary>Releases are only accepted from a phone connected to the hub, like the draw page.</summary>
+public sealed class LiveConnectionTests : IDisposable
+{
+    private readonly TempDirectory _dir = new();
+    private readonly WebApplicationFactory<Program> _factory;
+    private readonly HttpClient _client;
+
+    public LiveConnectionTests()
+    {
+        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
+            .UseSetting("Storage:DataPath", _dir.Path)
+            .UseSetting("Admin:Pin", "test-pin-1357")
+            .UseSetting("Snapshots:IntervalMinutes", "0"));
+        _client = _factory.CreateClient();
+    }
+
+    public void Dispose()
+    {
+        _client.Dispose();
+        _factory.Dispose();
+        _dir.Dispose();
+    }
+
+    private async Task<HubConnection> ConnectAsVisitorAsync(string clientId)
+    {
+        var hub = new HubConnectionBuilder()
+            .WithUrl(new Uri(_factory.Server.BaseAddress, "hubs/tank"), o =>
+            {
+                o.Transports = HttpTransportType.LongPolling; // the test server speaks plain HTTP
+                o.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+            })
+            .Build();
+        await hub.StartAsync();
+        await hub.InvokeAsync("JoinVisitor", clientId);
+        return hub;
+    }
+
+    [Fact]
+    public async Task ReleaseWithoutAConnection_IsTurnedAway()
+    {
+        var res = await _client.PostAsync("/api/creatures", ApiTests.DrawingFor("script-without-hub"));
+
+        Assert.Equal(HttpStatusCode.Conflict, res.StatusCode);
+        var body = await res.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Contains("Still connecting", body.GetProperty("error").GetString());
+    }
+
+    [Fact]
+    public async Task ReleaseFromAConnectedPhone_IsAccepted()
+    {
+        await using var hub = await ConnectAsVisitorAsync("phone-connected-1");
+
+        var res = await _client.PostAsync("/api/creatures", ApiTests.DrawingFor("phone-connected-1"));
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+    }
+
+    [Fact]
+    public async Task APhoneThatJustDisconnected_CanStillRelease()
+    {
+        var hub = await ConnectAsVisitorAsync("phone-blip-1");
+        await hub.DisposeAsync();
+
+        var res = await _client.PostAsync("/api/creatures", ApiTests.DrawingFor("phone-blip-1"));
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+    }
+
+    [Fact]
+    public async Task AnotherPhonesConnection_DoesNotCount()
+    {
+        await using var hub = await ConnectAsVisitorAsync("phone-connected-2");
+
+        var res = await _client.PostAsync("/api/creatures", ApiTests.DrawingFor("someone-else-3"));
+
+        Assert.Equal(HttpStatusCode.Conflict, res.StatusCode);
     }
 }
