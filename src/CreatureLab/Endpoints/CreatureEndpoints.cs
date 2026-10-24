@@ -41,6 +41,7 @@ public static class CreatureEndpoints
         CreatureStore store,
         NameValidator names,
         SubmissionRateLimiter limiter,
+        ConnectionTracker connections,
         RuntimeSettings settings,
         TankNotifier notifier,
         MessageCounter messages,
@@ -94,6 +95,12 @@ public static class CreatureEndpoints
 
         var check = PngValidator.Validate(png, upload.MaxBytes, upload.MaxDimension);
         if (!check.IsValid) return Error(400, check.Error!);
+
+        // Releases come from the draw page, which keeps a live connection to the hub.
+        if (options.Value.RateLimit.RequireConnection && !connections.ConnectedRecently(clientId))
+        {
+            return Error(409, "Still connecting to the tank. Wait a moment and try again.");
+        }
 
         // Validation passed; only now spend the visitor's rate-limit budget, so fixing a
         // rejected name doesn't make them wait 30 seconds.

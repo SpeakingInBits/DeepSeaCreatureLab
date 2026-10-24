@@ -45,10 +45,17 @@ public sealed class RateLimitOptions
     public int SecondsPerDevice { get; set; } = 30;
 
     /// <summary>
-    /// Submissions allowed per IP address per minute. Looser than the per-device limit
-    /// because many phones on campus Wi-Fi share one public IP. 0 disables it.
+    /// Only accept a release from a device with a live SignalR connection (now or in the last
+    /// two minutes). The draw page always has one; a script that just posts uploads doesn't.
     /// </summary>
-    public int MaxPerIpPerMinute { get; set; } = 10;
+    public bool RequireConnection { get; set; } = true;
+
+    /// <summary>
+    /// Backstop for devices that dodge the per-device limit with a new ID (private window,
+    /// cleared storage). Loose, because many phones on campus Wi-Fi share one public IP.
+    /// 0 disables it.
+    /// </summary>
+    public int MaxPerIpPerMinute { get; set; } = 20;
 }
 
 public sealed class UploadOptions
