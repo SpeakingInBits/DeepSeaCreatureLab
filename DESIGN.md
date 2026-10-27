@@ -1,6 +1,6 @@
 # Engineering Design Document: Deep Sea Creature Lab
 
-> **Status:** v0.9: built. Decisions are recorded in §15 "Decided"; program colors are the one item still open.
+> **Status:** v1.0: built. Decisions are recorded in §15 "Decided".
 > **Owner:** Joe (Computer Programming program)
 > **Event:** College Program Expo, **Wednesday, October 28, 2026, 3:00–6:00 PM**
 > **Build window:** Fri Oct 23 – Tue Oct 27 (about 5 days), part-time, alongside normal duties. Built by Joe with Claude Code.
@@ -40,7 +40,7 @@ No app install, no accounts, no hardware. Everything runs from one laptop at the
 | Network | Visitors are NOT on the same network as the laptop. Public access via tunnel (see §10). |
 | Visitor devices | Personal phones, iOS Safari and Android Chrome, on cellular or campus Wi-Fi |
 | Expected traffic | 0–10 visitors at a time over a 3-hour event. Design target: 150 drawings total, 25 concurrent phones (headroom over expected). |
-| Program branding | "Computer Programming" shown prominently on screen. **[TBD: colors, picked from the brand colors]** |
+| Program branding | "Computer Programming" shown prominently on screen, in CPTC brand colors (§15). |
 
 ## 5. Users and roles
 
@@ -383,7 +383,7 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
 
 ## 15. Open questions
 
-1. Program colors: which of the brand colors to use on screen?
+None.
 
 ### Decided
 - .NET 10. Canvas 2D rendering. Deep Sea Creature Lab theme with "Computer Programming" on screen.
@@ -403,3 +403,4 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
   - Microsoft Dev Tunnel as primary, Cloudflare quick tunnel as backup (§10). The named tunnel is dropped from the README.
   - Staffing isn't a design question: auto-approve covers busy moments either way.
   - The credit line stays as it is ("Built by Computer Programming with C#, ASP.NET Core, and SignalR.").
+  - Colors: the accents are CPTC brand colors ([cptc.edu/about/communication/colors](https://www.cptc.edu/about/communication/colors)). CPTC Green `#97d700` is the main accent (titles, buttons, the TV panel), CPTC Purple `#502d7f` fills the "Computer Programming" badge, and CPTC Alt Purple `#8d6cd1` is the second accent. The water stays deep-sea blue. They live in `wwwroot/shared/theme.css` and `theme.js`.

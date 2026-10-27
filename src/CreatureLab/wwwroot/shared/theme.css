@@ -1,13 +1,15 @@
 /* Shared colors and fonts for the draw and admin pages.
-   Program branding colors go here (and in theme.js for the canvases). */
+   Program branding colors go here (and in theme.js for the canvases). The accents are CPTC brand
+   colors (cptc.edu/about/communication/colors): green, alt purple and purple. The water stays blue. */
 :root {
   --abyss: #020b16;
   --deep: #041a33;
   --mid: #07305a;
   --surface: #0b4a7a;
-  --glow: #46e6ff;
-  --glow-soft: rgba(70, 230, 255, 0.18);
-  --coral: #ff6fb5;
+  --glow: #97d700; /* CPTC Green */
+  --glow-soft: rgba(151, 215, 0, 0.18);
+  --coral: #8d6cd1; /* CPTC Alt Purple */
+  --purple: #502d7f; /* CPTC Purple */
   --sun: #ffd166;
   --ok: #3ddc97;
   --danger: #ff5d6c;
@@ -62,8 +64,8 @@ button:disabled {
 
 .badge {
   display: inline-block;
-  background: var(--glow);
-  color: #02121f;
+  background: var(--purple);
+  color: #fff;
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: 0.08em;

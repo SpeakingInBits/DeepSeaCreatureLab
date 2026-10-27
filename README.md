@@ -291,8 +291,3 @@ tests/CreatureLab.Tests/       xUnit unit and API tests
 tools/                         LoadTest.cs, make-timelapse.ps1
 data/                          runtime data (gitignored): images, creatures.json, snapshots, settings
 ```
-
-## Still to decide
-
-From DESIGN.md §15: **program colors.** Pick from the brand colors; they live in
-`wwwroot/shared/theme.css` and `theme.js`.
