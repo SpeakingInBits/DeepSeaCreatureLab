@@ -22,11 +22,11 @@ env:
 jobs:
   build-and-test:
     name: Build and test (${{ matrix.os }})
-    # Windows is what the booth laptop runs; Linux catches anything that only works on Windows.
+    # Windows is what the booth laptop runs. Keeping the matrix keeps the check's name, which branch
+    # protection requires.
     strategy:
-      fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
 

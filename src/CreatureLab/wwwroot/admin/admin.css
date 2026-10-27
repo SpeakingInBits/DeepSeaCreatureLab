@@ -158,7 +158,7 @@ input:focus {
 
 #pending-count.has-items {
   background: var(--coral);
-  color: #2a0016;
+  color: #1a0b33;
 }
 
 .banner {

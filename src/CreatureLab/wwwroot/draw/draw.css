@@ -17,7 +17,7 @@ main {
   font-family: var(--font-display);
   font-size: clamp(24px, 7vw, 32px);
   margin: 6px 0 0;
-  text-shadow: 0 0 18px rgba(70, 230, 255, 0.45);
+  text-shadow: 0 0 18px rgba(151, 215, 0, 0.45);
 }
 
 .step {
@@ -93,8 +93,8 @@ main {
 .habitat[aria-checked="true"] {
   border-color: var(--glow);
   color: var(--text);
-  background: rgba(70, 230, 255, 0.12);
-  box-shadow: 0 0 16px rgba(70, 230, 255, 0.25);
+  background: rgba(151, 215, 0, 0.12);
+  box-shadow: 0 0 16px rgba(151, 215, 0, 0.25);
 }
 
 .habitat[aria-checked="true"] svg {
@@ -277,8 +277,8 @@ main {
   font-size: 21px;
   border: 0;
   color: #02121f;
-  background: linear-gradient(90deg, var(--glow), #7cf3ff);
-  box-shadow: 0 0 24px rgba(70, 230, 255, 0.45);
+  background: linear-gradient(90deg, var(--glow), #c6f04f);
+  box-shadow: 0 0 24px rgba(151, 215, 0, 0.45);
 }
 
 .release:disabled {
@@ -417,7 +417,7 @@ main {
   padding: 16px;
   margin-bottom: 10px;
   border-radius: var(--radius);
-  background: linear-gradient(90deg, rgba(70, 230, 255, 0.16), rgba(255, 111, 181, 0.12));
+  background: linear-gradient(90deg, rgba(151, 215, 0, 0.16), rgba(141, 108, 209, 0.16));
   border: 2px solid var(--card-border);
   color: var(--text);
   font-weight: 700;

@@ -75,7 +75,7 @@ export function renderKeepsakeCard({ drawing, creatureName, artistDisplay, progr
   // Footer band
   ctx.fillStyle = "rgba(1, 8, 18, 0.78)";
   ctx.fillRect(0, FOOTER_TOP, W, H - FOOTER_TOP);
-  ctx.fillStyle = "rgba(70, 230, 255, 0.5)";
+  ctx.fillStyle = "rgba(151, 215, 0, 0.5)";
   ctx.fillRect(0, FOOTER_TOP, W, 2);
 
   ctx.fillStyle = theme.text;

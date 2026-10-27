@@ -4,8 +4,9 @@ export const theme = {
   deep: "#041a33",
   mid: "#07305a",
   surface: "#0b4a7a",
-  glow: "#46e6ff",
-  coral: "#ff6fb5",
+  glow: "#97d700", // CPTC Green
+  coral: "#8d6cd1", // CPTC Alt Purple
+  purple: "#502d7f", // CPTC Purple
   sun: "#ffd166",
   ok: "#3ddc97",
   text: "#e8f6ff",

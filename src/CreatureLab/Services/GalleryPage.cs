@@ -33,12 +33,12 @@ public static class GalleryPage
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>Deep Sea Creature Lab · Gallery</title>
             <style>
-              :root { --abyss:#020b16; --deep:#041a33; --glow:#46e6ff; --text:#e8f6ff; --muted:#8fb3c9; }
+              :root { --abyss:#020b16; --deep:#041a33; --glow:#97d700; --purple:#502d7f; --text:#e8f6ff; --muted:#8fb3c9; }
               * { box-sizing: border-box; }
               body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--text);
                      background: linear-gradient(#07305a, var(--deep) 30%, var(--abyss)); background-attachment: fixed; min-height:100vh; }
               header, main, footer { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
-              .badge { display:inline-block; background:var(--glow); color:#02121f; font-weight:700; letter-spacing:.08em;
+              .badge { display:inline-block; background:var(--purple); color:#fff; font-weight:700; letter-spacing:.08em;
                        padding:4px 12px; border-radius:999px; font-size:13px; }
               h1 { font-size: clamp(28px, 5vw, 48px); margin: 10px 0 4px; }
               h2 { margin: 32px 0 12px; }

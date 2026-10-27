@@ -22,7 +22,7 @@ See [DESIGN.md](DESIGN.md) for the full design.
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (or a newer SDK; the
 app targets `net10.0`).
 
-```bash
+```powershell
 dotnet run --project src/CreatureLab
 ```
 
@@ -32,13 +32,13 @@ Then open <http://localhost:5000/tank>, <http://localhost:5000/draw> and
 For the event, use the `event` profile. It runs in Production mode, so error pages don't show stack
 traces to visitors:
 
-```bash
+```powershell
 dotnet run --project src/CreatureLab --launch-profile event
 ```
 
 Run the tests:
 
-```bash
+```powershell
 dotnet test
 ```
 
@@ -74,7 +74,8 @@ next start. Auto-approve is deliberately not saved: it always starts **off** aft
 ### Settings
 
 All in `src/CreatureLab/appsettings.json`. Any of them can be overridden with an environment
-variable, using `__` for nesting (for example `RateLimit__MaxPerIpPerMinute=1000`).
+variable, using `__` for nesting (for example `$env:RateLimit__MaxPerIpPerMinute = 1000` in
+PowerShell before `dotnet run`).
 
 | Setting | Default | What it does |
 |---|---|---|
@@ -100,85 +101,61 @@ Phones aren't on the laptop's network, so a tunnel gives the laptop a public HTT
 tunnel client runs on the laptop and forwards to `http://localhost:5000`. Leave its window open all
 event; closing it kills the URL.
 
-### A. Cloudflare quick tunnel (primary)
+### A. Microsoft Dev Tunnels (primary)
 
-Install `cloudflared` once:
+Set this up **before** event day. The tunnel keeps the same URL every time it starts.
 
-```bash
-winget install --id Cloudflare.cloudflared
-```
-
-(macOS: `brew install cloudflared`. Linux: see Cloudflare's downloads page.)
-
-Start it (no account needed):
-
-```bash
-cloudflared tunnel --url http://localhost:5000
-```
-
-Copy the `https://….trycloudflare.com` URL it prints and paste it into **Admin → Settings → Public
-URL**. The URL changes every time cloudflared starts; paste the new one each time.
-
-### C. Microsoft Dev Tunnels (backup)
-
-Set this up **before** event day so switching takes under a minute.
-
-```bash
+```powershell
 winget install Microsoft.devtunnel
 ```
 
 One-time setup (log in with a Microsoft or GitHub account):
 
-```bash
+```powershell
 devtunnel user login
 ```
 
-```bash
+```powershell
 devtunnel create creature-lab
 ```
 
-```bash
+```powershell
 devtunnel port create creature-lab -p 5000
 ```
 
-On the morning of the event (anonymous access expires; 6 hours covers the day):
+On the morning of the event (anonymous access expires; 12 hours lasts until 6 PM even if you create it early):
 
-```bash
-devtunnel access create creature-lab -a --expiration 6h
+```powershell
+devtunnel access create creature-lab -a --expiration 12h
 ```
 
-To switch over: stop cloudflared, run the command below, and paste its URL into the admin page.
-Visitors see a one-time "Continue" page; tell them "tap Continue, it's our tunnel."
+Start it:
 
-```bash
+```powershell
 devtunnel host creature-lab
 ```
 
-### B. Cloudflare named tunnel (optional)
+Copy the `https://….devtunnels.ms` URL it prints and paste it into **Admin → Settings → Public
+URL**. Visitors see a one-time "Continue" page; tell them "tap Continue, it's our tunnel."
 
-Only worth it if you already have a domain in Cloudflare. It gives a permanent URL, but the QR code
-is generated live, so a stable URL isn't needed.
+### B. Cloudflare quick tunnel (backup)
 
-```bash
-cloudflared tunnel login
+No account needed, and visitors go straight to the page, but the URL changes every time it starts.
+Install `cloudflared` once:
+
+```powershell
+winget install --id Cloudflare.cloudflared
 ```
 
-```bash
-cloudflared tunnel create creature-lab
+To switch over: stop the Dev Tunnel (Ctrl+C), run the command below, and paste the
+`https://….trycloudflare.com` URL it prints into the admin page. If cloudflared restarts, paste the
+new URL again.
+
+```powershell
+cloudflared tunnel --url http://localhost:5000
 ```
 
-```bash
-cloudflared tunnel route dns creature-lab creatures.example.edu
-```
-
-Then write a cloudflared config file mapping that hostname to `http://localhost:5000`, set
-`PublicBaseUrl` to `https://creatures.example.edu` in `appsettings.json`, and on event day run:
-
-```bash
-cloudflared tunnel run creature-lab
-```
-
-### Notes for every option
+### Notes for both tunnels
 
 - The SignalR client uses WebSockets with long-polling as the fallback, never Server-Sent Events
   (quick tunnels don't support SSE).
@@ -218,9 +195,15 @@ ignored. Press Alt+F4 to leave kiosk mode.
 | Phones | iPhone (Safari) and Android (Chrome) **on cellular**, through the tunnel |
 
 The load test simulates phones from one IP address, so start the server with a higher network limit
-first, for example `RateLimit__MaxPerIpPerMinute=1000`. Each simulated phone connects to the server
-before releasing, as the draw page does. The script reports how many phones heard
-their result back over SignalR and the submit latency.
+first:
+
+```powershell
+$env:RateLimit__MaxPerIpPerMinute = 1000; dotnet run --project src/CreatureLab
+```
+
+Each simulated phone connects to the server before releasing, as the draw page does. The script
+reports how many phones heard their result back over SignalR and the submit latency. The variable
+stays set for that PowerShell window, so start the event server from a new one.
 
 To try the draw page from a phone on the same Wi-Fi without a tunnel, start the server with
 `--urls http://0.0.0.0:5000` and browse to the laptop's IP. Over plain http, "Save to my phone" falls
@@ -230,14 +213,14 @@ back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 
 ### Tuesday 10/27: dress rehearsal
 
-- [ ] Start the quick tunnel, set the URL, scan the TV QR code from an iPhone and an Android **on
-      cellular**, submit and approve a drawing.
+- [ ] Create the Dev Tunnel access token, start the Dev Tunnel, set the URL, scan the TV QR code
+      from an iPhone and an Android **on cellular**; confirm the "Continue" page appears once, then
+      submit and approve a drawing.
 - [ ] Tap **Save to my phone** on both phones; check the card lands in Photos/Gallery.
-- [ ] Stop and restart the quick tunnel; paste the new URL; confirm the QR code updates and phones
-      reconnect.
-- [ ] Switch to the Dev Tunnel backup; confirm the "Continue" page appears once and the full flow
+- [ ] Stop and restart the Dev Tunnel; confirm the URL is the same and phones reconnect.
+- [ ] Switch to the quick tunnel backup; paste its URL; confirm the QR code updates and the full flow
       works.
-- [ ] Switch the laptop to a phone hotspot; confirm the quick tunnel still works.
+- [ ] Switch the laptop to a phone hotspot; confirm the Dev Tunnel still works.
 - [ ] Run the load test through the tunnel; leave `/tank` running for a few hours (soak test).
 - [ ] Seed 10–15 creatures drawn by students and approve them.
 
@@ -246,9 +229,8 @@ back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 - [ ] Laptop plugged in; sleep off; notifications and Windows Update paused.
 - [ ] `git pull`, then start the server: `dotnet run --project src/CreatureLab --launch-profile event`.
 - [ ] Confirm the console shows the PIN you expect and the right data folder.
-- [ ] Start `cloudflared tunnel --url http://localhost:5000`; paste the URL into Admin → Settings.
-- [ ] On the morning, create the Dev Tunnel access token (`devtunnel access create … --expiration 6h`)
-      so the backup is ready.
+- [ ] Create the Dev Tunnel access token (`devtunnel access create creature-lab -a --expiration 12h`),
+      then start `devtunnel host creature-lab`; paste the URL into Admin → Settings.
 - [ ] Open the TV in kiosk mode; check the QR code, header and panel look right.
 - [ ] Scan the QR code from a phone on cellular; release a creature; approve it; watch it arrive.
 - [ ] Moderator phones: open `<tunnel>/admin`, enter the PIN, leave sound on.
@@ -260,8 +242,8 @@ back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 
 - **Inappropriate drawing got through:** Admin → In tank → **Remove**, tap twice. It vanishes
   from the TV and the ticker immediately.
-- **QR code stopped working:** restart cloudflared and paste the new URL into Admin → Settings.
-  If the quick tunnel keeps failing, switch to the Dev Tunnel.
+- **QR code stopped working:** restart `devtunnel host creature-lab` (the URL stays the same). If
+  the Dev Tunnel keeps failing, switch to the quick tunnel and paste its URL into Admin → Settings.
 - **Busy moment, one moderator:** turn on auto-approve (a yellow banner shows it's on); keep
   watching the In tank list. Turn it off when things calm down.
 - **Server restarted:** phones and the TV reconnect on their own. The tank, queue, settings and
@@ -272,7 +254,7 @@ back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 - [ ] Admin → Settings → **Download gallery** (all approved drawings, snapshots, `creatures.json`
       and a ready-to-open `index.html` with a time-lapse). It includes artist names, so check it
       before posting anywhere public.
-- [ ] Stop cloudflared (Ctrl+C). The public URL stops working.
+- [ ] Stop the tunnel (Ctrl+C). The public URL stops working.
 - [ ] Stop the server and back up the `data/` folder.
 - [ ] Optional: `./tools/make-timelapse.ps1` turns the snapshots into an MP4 (needs ffmpeg).
 
@@ -285,7 +267,7 @@ admins can still push an urgent fix directly). Changes written by Claude Code co
 SpeakingInBits GitHub App (`speakinginbits-bot[bot]`), so a person reviews and approves each one.
 
 GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) builds the app and runs
-`dotnet test` on Windows and Linux for every pull request and every push to `main`.
+`dotnet test` on Windows for every pull request and every push to `main`.
 
 ## Project layout
 
@@ -306,15 +288,6 @@ src/CreatureLab/
   wwwroot/shared/              theme, SignalR setup, QR drawing, deep-sea painting helpers
   wwwroot/lib/                 vendored SignalR client and qrcode-generator
 tests/CreatureLab.Tests/       xUnit unit and API tests
-tools/                         LoadTest.cs, make-timelapse.ps1 / .sh
+tools/                         LoadTest.cs, make-timelapse.ps1
 data/                          runtime data (gitignored): images, creatures.json, snapshots, settings
 ```
-
-## Still to decide
-
-From DESIGN.md §15; none of these block the build.
-
-1. **Booth laptop OS.** The commands above assume Windows; macOS/Linux equivalents are noted.
-2. **Program colors or logo.** The colors live in `wwwroot/shared/theme.css` and `theme.js`.
-3. **Booth staffing.** Decides how much auto-approve gets used; no code impact.
-4. **Credit line mentions Claude Code?** Change `Display:CreditLine` in `appsettings.json`.

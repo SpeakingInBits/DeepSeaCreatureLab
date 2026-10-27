@@ -48,8 +48,8 @@ let L = null; // layout
 let staticLayer = null; // water, distant ridges and seafloor, pre-rendered
 let scenery = null; // kelp, marine snow, plankton, distant fish, vents
 let qrCache = { key: null, canvas: null };
-const cyanDot = makeGlow("rgba(70, 230, 255, 1)", 24);
-const coralDot = makeGlow("rgba(255, 111, 181, 1)", 24);
+const cyanDot = makeGlow("rgba(151, 215, 0, 1)", 24);
+const coralDot = makeGlow("rgba(141, 108, 209, 1)", 24);
 const planktonGlow = makeGlow("rgba(120, 255, 220, 0.9)", 24);
 
 const rand = (min, max) => min + Math.random() * (max - min);
@@ -771,19 +771,19 @@ function drawHeader(g) {
   setLetterSpacing(g, `${3 * u}px`);
   const bw = g.measureText(label).width + 32 * u;
   const bh = 42 * u;
-  g.fillStyle = theme.glow;
-  g.shadowColor = "rgba(70, 230, 255, 0.6)";
+  g.fillStyle = theme.purple;
+  g.shadowColor = "rgba(141, 108, 209, 0.6)";
   g.shadowBlur = 18 * u;
   roundRect(g, x, y, bw, bh, bh / 2);
   g.fill();
   g.shadowBlur = 0;
-  g.fillStyle = "#02121f";
+  g.fillStyle = "#fff";
   g.fillText(label, x + 16 * u, y + bh / 2 + 1 * u);
   setLetterSpacing(g, "0px");
 
   g.textBaseline = "top";
   g.font = `700 ${70 * u}px ${theme.fontDisplay}`;
-  g.shadowColor = "rgba(70, 230, 255, 0.55)";
+  g.shadowColor = "rgba(151, 215, 0, 0.55)";
   g.shadowBlur = 26 * u;
   g.fillStyle = theme.text;
   g.fillText("Deep Sea Creature Lab", x, y + bh + 6 * u);
@@ -806,7 +806,7 @@ function drawPanel(g, t, now) {
   g.save();
   g.fillStyle = "rgba(2, 12, 26, 0.8)";
   g.fillRect(x0, 0, w, H);
-  g.fillStyle = "rgba(70, 230, 255, 0.35)";
+  g.fillStyle = "rgba(151, 215, 0, 0.35)";
   g.fillRect(x0, 0, 2 * u, H);
 
   // Call to action and QR code
@@ -907,7 +907,7 @@ function sectionTitle(g, text, x, y) {
 
 function drawQrCard(g, x, y, size, t) {
   g.save();
-  g.shadowColor = "rgba(70, 230, 255, 0.7)";
+  g.shadowColor = "rgba(151, 215, 0, 0.7)";
   g.shadowBlur = (20 + 10 * Math.sin(t * 2)) * u;
   g.fillStyle = "#fff";
   roundRect(g, x, y, size, size, 18 * u);
@@ -976,7 +976,7 @@ function drawDiagram(g, x, y, w, now) {
   for (const [name, node] of Object.entries(nodes)) {
     const pulse = state.pulses[name];
     if (pulse > 0) {
-      g.strokeStyle = `rgba(70, 230, 255, ${pulse.toFixed(3)})`;
+      g.strokeStyle = `rgba(151, 215, 0, ${pulse.toFixed(3)})`;
       g.lineWidth = 3 * u;
       g.beginPath();
       g.arc(node.x, node.y, r + (1 - pulse) * 14 * u, 0, Math.PI * 2);
@@ -1058,7 +1058,7 @@ function drawStats(g, x, y, w, now, items) {
     const flash = clamp(1 - (now - state.statChangedAt[key].at) / 800, 0, 1);
 
     const tx = x + i * (tw + gap);
-    g.fillStyle = `rgba(70, 230, 255, ${(0.06 + flash * 0.25).toFixed(3)})`;
+    g.fillStyle = `rgba(151, 215, 0, ${(0.06 + flash * 0.25).toFixed(3)})`;
     roundRect(g, tx, y, tw, h, 14 * u);
     g.fill();
     g.textAlign = "center";

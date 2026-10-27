@@ -1,6 +1,6 @@
 # Engineering Design Document: Deep Sea Creature Lab
 
-> **Status:** v0.8: build decisions from Oct 23 recorded (see §15 "Decided"). Items marked **[TBD]** need a decision before or during the build.
+> **Status:** v1.0: built. Decisions are recorded in §15 "Decided".
 > **Owner:** Joe (Computer Programming program)
 > **Event:** College Program Expo, **Wednesday, October 28, 2026, 3:00–6:00 PM**
 > **Build window:** Fri Oct 23 – Tue Oct 27 (about 5 days), part-time, alongside normal duties. Built by Joe with Claude Code.
@@ -36,12 +36,11 @@ No app install, no accounts, no hardware. Everything runs from one laptop at the
 | Item | Value |
 |---|---|
 | Display | HD TV (1920×1080) **or** a wide-screen monitor (e.g. 2560×1080 / 3440×1440), plugged into the server laptop. Browser in fullscreen/kiosk mode at `http://localhost:5000/tank`. Layout must adapt to 16:9 and ultrawide (21:9). |
-| Host machine | Booth laptop running the server, **[TBD: Windows / macOS / Linux]** |
+| Host machine | Windows booth laptop running the server |
 | Network | Visitors are NOT on the same network as the laptop. Public access via tunnel (see §10). |
 | Visitor devices | Personal phones, iOS Safari and Android Chrome, on cellular or campus Wi-Fi |
 | Expected traffic | 0–10 visitors at a time over a 3-hour event. Design target: 150 drawings total, 25 concurrent phones (headroom over expected). |
-| Staff | **[TBD: number of staff/student helpers at the booth]** |
-| Program branding | "Computer Programming" shown prominently on screen. **[TBD: colors and logo, if any]** |
+| Program branding | "Computer Programming" shown prominently on screen, in CPTC brand colors (§15). |
 
 ## 5. Users and roles
 
@@ -102,28 +101,9 @@ No app install, no accounts, no hardware. Everything runs from one laptop at the
 - **Rendering:** Canvas 2D on the tank page (sufficient for HD and ~30 sprites; keeps the code readable).
 - **State:** In-memory, persisted to a `data/` folder (images as PNG files, metadata as JSON).
 
-### 7.1 Repository layout (proposed)
+### 7.1 Repository layout
 
-```
-/
-├── DESIGN.md                  (this document)
-├── README.md                  (how to run, tunnel setup, event-day checklist)
-├── src/CreatureLab/
-│   ├── Program.cs
-│   ├── appsettings.json
-│   ├── Hubs/TankHub.cs
-│   ├── Models/Creature.cs
-│   ├── Services/CreatureStore.cs
-│   ├── Services/RateLimiter.cs
-│   ├── Endpoints/CreatureEndpoints.cs
-│   └── wwwroot/
-│       ├── draw/index.html, draw.js, draw.css
-│       ├── tank/index.html, tank.js, tank.css
-│       ├── admin/index.html, admin.js, admin.css
-│       └── lib/               (vendored JS libraries)
-├── tests/CreatureLab.Tests/
-└── data/                      (gitignored; runtime images and metadata)
-```
+The README's "Project layout" section lists the files as built.
 
 ## 8. Detailed design
 
@@ -310,39 +290,38 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
 
 ### 10.1 Tunnel options
 
-| | **A. Cloudflare quick tunnel** | **B. Cloudflare named tunnel** | **C. Microsoft Dev Tunnels** |
+| | **A. Microsoft Dev Tunnels** | **B. Cloudflare quick tunnel** | **C. Cloudflare named tunnel** |
 |---|---|---|---|
-| Role for this event | **Primary** | Not planned | **Backup** |
-| Account needed | None | Cloudflare account + a domain managed in Cloudflare | Microsoft, Entra ID, or GitHub account |
-| URL | Random `*.trycloudflare.com`; changes every time the tunnel starts | Permanent, on your domain (e.g. `creatures.example.edu`) | `*.devtunnels.ms`; stays the same across restarts if you create a persistent tunnel |
-| Visitor experience | Straight to the page | Straight to the page | Anti-phishing interstitial on first visit; visitor taps **Continue** once |
-| Capacity | Up to 200 in-flight requests per tunnel (excess gets HTTP 429). Far above our 0–10 concurrent visitors. | Higher limits; not a concern at this scale | Published limits not verified; ample for this scale |
-| Caveats | No uptime guarantee; **no Server-Sent Events** support | Setup takes longer (DNS, tunnel config, credentials file) | Must enable anonymous access; the interstitial adds friction at a booth |
-| Start command | `cloudflared tunnel --url http://localhost:5000` | `cloudflared tunnel run <name>` (after one-time setup) | `devtunnel host -p 5000 --allow-anonymous`, or a persistent tunnel (below) |
+| Role for this event | **Primary** | **Backup** | Not planned |
+| Account needed | Microsoft, Entra ID, or GitHub account | None | Cloudflare account + a domain managed in Cloudflare |
+| URL | `*.devtunnels.ms`; stays the same across restarts if you create a persistent tunnel | Random `*.trycloudflare.com`; changes every time the tunnel starts | Permanent, on your domain (e.g. `creatures.example.edu`) |
+| Visitor experience | Anti-phishing interstitial on first visit; visitor taps **Continue** once | Straight to the page | Straight to the page |
+| Capacity | Published limits not verified; ample for this scale | Up to 200 in-flight requests per tunnel (excess gets HTTP 429). Far above our 0–10 concurrent visitors. | Higher limits; not a concern at this scale |
+| Caveats | Must enable anonymous access; the interstitial adds friction at a booth | No uptime guarantee; **no Server-Sent Events** support | Setup takes longer (DNS, tunnel config, credentials file) |
+| Start command | `devtunnel host creature-lab` (persistent tunnel, below) | `cloudflared tunnel --url http://localhost:5000` | `cloudflared tunnel run <name>` (after one-time setup) |
 
-**Decision:** A as primary, C prepared in advance as backup. B is only worth it if a Cloudflare-managed domain already exists; a stable URL isn't needed because the QR code is generated live.
+**Decision (Oct 26):** A as primary, set up in advance; B as the backup. A's URL survives restarts, so a dropped tunnel comes back without pasting a new URL. C is only worth it if a Cloudflare-managed domain already exists; a stable URL isn't needed because the QR code is generated live. The README covers A and B only.
 
 ### 10.2 Option details
 
-**A. Cloudflare quick tunnel (primary)**
-- Install `cloudflared` on the booth laptop. No login required.
-- Run `cloudflared tunnel --url http://localhost:5000`, copy the printed `https://….trycloudflare.com` URL, and paste it into the admin page's **Public URL** setting. The TV QR code updates immediately.
-- The URL dies when `cloudflared` stops. Leave its terminal window open for the whole event.
-
-**B. Cloudflare named tunnel (optional)**
-- One-time: `cloudflared tunnel login`, `cloudflared tunnel create creature-lab`, then `cloudflared tunnel route dns creature-lab <hostname>`, and a config file mapping the hostname to `http://localhost:5000`.
-- Event day: `cloudflared tunnel run creature-lab`. Set `PublicBaseUrl` once in `appsettings.json`; it never changes.
-
-**C. Microsoft Dev Tunnels (backup)**
+**A. Microsoft Dev Tunnels (primary)**
 - One-time, before event day:
   - `devtunnel user login` (Microsoft or GitHub account)
   - `devtunnel create creature-lab`
   - `devtunnel port create creature-lab -p 5000`
-  - `devtunnel access create creature-lab -a --expiration 6h` (anonymous access; expiration can be 1h–30d and is fixed from when it's created, so create it on the morning of the event)
-- Event day (if switching): `devtunnel host creature-lab`, then paste its URL into the admin page.
-- The persistent URL can be noted in advance, so switching takes under a minute.
+  - `devtunnel access create creature-lab -a --expiration 12h` (anonymous access; expiration can be 1h–30d and is fixed from when it's created, so create it on the morning of the event)
+- Event day: `devtunnel host creature-lab`, then paste its URL into the admin page. The URL stays the same across restarts.
 - Visitors see a one-time "continue" page. Booth staff should be ready to say "tap Continue, it's our tunnel."
 - Visual Studio's built-in tunnel feature is the same service and can be used during development.
+
+**B. Cloudflare quick tunnel (backup)**
+- Install `cloudflared` on the booth laptop. No login required.
+- Run `cloudflared tunnel --url http://localhost:5000`, copy the printed `https://….trycloudflare.com` URL, and paste it into the admin page's **Public URL** setting. The TV QR code updates immediately.
+- The URL dies when `cloudflared` stops, and a restart gives a new one to paste.
+
+**C. Cloudflare named tunnel (not planned)**
+- One-time: `cloudflared tunnel login`, `cloudflared tunnel create creature-lab`, then `cloudflared tunnel route dns creature-lab <hostname>`, and a config file mapping the hostname to `http://localhost:5000`.
+- Event day: `cloudflared tunnel run creature-lab`. Set `PublicBaseUrl` once in `appsettings.json`; it never changes.
 
 ### 10.3 App settings that apply to every option
 
@@ -354,10 +333,10 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
 
 ### 10.4 Rehearsal checklist (Tue 10/27)
 
-- [ ] Start the quick tunnel, set the URL, scan the TV QR code from an iPhone and an Android **on cellular**, submit and approve a drawing.
-- [ ] Stop and restart the quick tunnel; paste the new URL; confirm the QR code updates and phones reconnect.
-- [ ] Switch to the Dev Tunnel backup; confirm the interstitial appears once and the full flow works.
-- [ ] Switch the laptop to a phone hotspot; confirm the quick tunnel still works.
+- [ ] Start the Dev Tunnel, set the URL, scan the TV QR code from an iPhone and an Android **on cellular**; confirm the interstitial appears once, then submit and approve a drawing.
+- [ ] Stop and restart the Dev Tunnel; confirm the URL is the same and phones reconnect.
+- [ ] Switch to the quick tunnel backup; paste its URL; confirm the QR code updates and the full flow works.
+- [ ] Switch the laptop to a phone hotspot; confirm the Dev Tunnel still works.
 
 ## 11. Testing plan
 
@@ -386,7 +365,7 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
 | Risk | Mitigation |
 |---|---|
 | Venue internet down or slow | Phone hotspot fallback; test bandwidth beforehand |
-| Quick tunnel drops or misbehaves | Restart it and paste the new URL, or switch to the prepared Dev Tunnel backup (§10.2 C) |
+| Dev Tunnel drops or misbehaves | Restart it (same URL), or switch to the quick tunnel backup and paste its URL (§10.2 B) |
 | Tunnel URL changes on restart | QR generated live from config; runtime URL update on admin page |
 | Inappropriate drawings | Approval queue on by default; remove button for anything that slips through |
 | Moderator overwhelmed at peak | Global pending cap; per-device rate limit; second moderator device |
@@ -404,16 +383,13 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
 
 ## 15. Open questions
 
-1. Booth laptop OS (Windows, macOS, or Linux)? Affects the `cloudflared` install steps in the README.
-2. Program colors or logo to use on screen, if any?
-3. How many people will staff the booth? (Decides whether one person can moderate and talk to visitors at once, or auto-approve is needed during busy moments.)
-4. Should the on-screen credit line mention Claude Code (e.g. "Built by Computer Programming with C#, ASP.NET Core, SignalR, and Claude Code")?
+None.
 
 ### Decided
 - .NET 10. Canvas 2D rendering. Deep Sea Creature Lab theme with "Computer Programming" on screen.
 - Approval queue with auto-approve toggle (default off).
 - Live system panel in v1. Gallery export and timed snapshots in v1.
-- Cloudflare quick tunnel as primary, Microsoft Dev Tunnel as prepared backup (§10); display runs on the server laptop via localhost.
+- Display runs on the server laptop via localhost.
 - Event: Wed Oct 28, 3–6 PM, 0–10 concurrent visitors, HD TV or wide-screen monitor.
 - Oct 23, during the build (details in §8.5 and §9):
   - Rate limiting is layered: per device, live connection required, a loose per-network backstop (20/min, not one per 30 s, because campus Wi-Fi shares an IP), and the queue cap.
@@ -422,12 +398,9 @@ The app runs on the booth laptop. Phones reach it through a tunnel: a small clie
   - Word-list entries match whole words unless marked `*`.
   - Uploads are verified structurally (checksums plus inflated size) rather than fully decoded; no image library.
   - Repo: public at `SpeakingInBits/DeepSeaCreatureLab`; `main` requires one approving review. Claude Code's commits and PRs come from the SpeakingInBits GitHub App (`speakinginbits-bot[bot]`), and Joe reviews them.
-
----
-
-## Notes for Claude Code
-
-- Build in the order of §12. Get the end-to-end path (draw → submit → approve → appears on tank) working before any animation polish.
-- Keep the front end dependency-free except for the SignalR client and a QR code library; vendor both into `wwwroot/lib`.
-- Treat every **[TBD]** above as a decision to confirm with the owner, not as a placeholder to invent.
-- Include a README with: how to run locally, how to start each tunnel option in §10 (quick tunnel, Dev Tunnel backup, and optional named tunnel), how to set `PublicBaseUrl` and the admin PIN, and an event-day checklist.
+- Oct 26:
+  - The booth laptop runs Windows. The README covers Windows only; the macOS/Linux notes and `tools/make-timelapse.sh` were removed, and CI builds on Windows only.
+  - Microsoft Dev Tunnel as primary, Cloudflare quick tunnel as backup (§10). The named tunnel is dropped from the README.
+  - Staffing isn't a design question: auto-approve covers busy moments either way.
+  - The credit line stays as it is ("Built by Computer Programming with C#, ASP.NET Core, and SignalR.").
+  - Colors: the accents are CPTC brand colors ([cptc.edu/about/communication/colors](https://www.cptc.edu/about/communication/colors)). CPTC Green `#97d700` is the main accent (titles, buttons, the TV panel), CPTC Purple `#502d7f` fills the "Computer Programming" badge, and CPTC Alt Purple `#8d6cd1` is the second accent. The water stays deep-sea blue. They live in `wwwroot/shared/theme.css` and `theme.js`.
