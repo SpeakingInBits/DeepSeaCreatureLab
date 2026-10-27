@@ -4,6 +4,10 @@ A shared, live deep-sea tank for the Program Expo (Wed Oct 28, 2026, 3–6 PM). 
 code on the TV, draw a creature on their phone, name it, sign it, and release it. After a crew member
 approves it, it swims onto the big screen. A side panel shows the system working in real time.
 
+![A visitor draws an anglerfish on their phone and releases it; a crew member approves it on the
+admin page and it swims onto the TV; then the crew removes a creature and changes
+settings](docs/walkthrough.gif)
+
 One ASP.NET Core app on the booth laptop serves everything; phones reach it through a tunnel.
 See [DESIGN.md](DESIGN.md) for the full design.
 
@@ -287,6 +291,7 @@ GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) builds t
 
 ```
 DESIGN.md                      engineering design document
+docs/walkthrough.gif           the visitor and crew walkthrough at the top of this README
 src/CreatureLab/
   Program.cs                   wiring: services, middleware, endpoints, hub
   appsettings.json             settings (see table above); appsettings.Local.json for secrets
