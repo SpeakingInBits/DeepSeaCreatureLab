@@ -184,13 +184,13 @@ public sealed class ApiTests : IDisposable
     public async Task SettingsUpdateNormalizesTheUrlAndShowsInConfig()
     {
         var update = Admin(HttpMethod.Post, "/api/admin/settings");
-        update.Content = JsonContent.Create(new { publicBaseUrl = "https://abc.trycloudflare.com/draw/" });
+        update.Content = JsonContent.Create(new { publicBaseUrl = "https://abc-5000.usw2.devtunnels.ms/draw/" });
 
         var res = await _client.SendAsync(update);
 
         Assert.Equal(HttpStatusCode.OK, res.StatusCode);
         var config = await _client.GetFromJsonAsync<JsonElement>("/api/config");
-        Assert.Equal("https://abc.trycloudflare.com", config.GetProperty("publicBaseUrl").GetString());
+        Assert.Equal("https://abc-5000.usw2.devtunnels.ms", config.GetProperty("publicBaseUrl").GetString());
         Assert.Equal(2, config.GetProperty("programs").GetArrayLength());
     }
 

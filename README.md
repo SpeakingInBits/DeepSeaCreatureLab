@@ -1,8 +1,9 @@
 # Deep Sea Creature Lab
 
-A shared, live deep-sea tank for the Program Expo (Wed Oct 28, 2026, 3–6 PM). Visitors scan the QR
-code on the TV, draw a creature on their phone, name it, sign it, and release it. After a crew member
-approves it, it swims onto the big screen. A side panel shows the system working in real time.
+A shared, live deep-sea tank, built for the CPTC Program Expo on October 28, 2026. Visitors scan
+the QR code on the TV, draw a creature on their phone, name it, sign it, and release it. After a
+crew member approves it, it swims onto the big screen. A side panel shows the system working in
+real time.
 
 ![A visitor draws an anglerfish on their phone and releases it; a crew member approves it on the
 admin page and it swims onto the TV; then the crew removes a creature and changes
@@ -74,8 +75,8 @@ The TV's QR code points at `PublicBaseUrl + "/draw"`. Set it in either place:
 
 - **Admin → Settings → Public URL.** Paste the tunnel URL and press Save. The QR code updates
   right away; no restart. Pasting a URL that ends in `/draw` is fine.
-- `PublicBaseUrl` in `appsettings.json` or the `PublicBaseUrl` environment variable (useful for a
-  permanent named tunnel).
+- `PublicBaseUrl` in `appsettings.json` or the `PublicBaseUrl` environment variable (the Dev
+  Tunnel's URL doesn't change, so you can set it once).
 
 Values saved on the admin page go into `data/settings.json` and win over `appsettings.json` on the
 next start. Auto-approve is deliberately not saved: it always starts **off** after a restart.
@@ -104,13 +105,12 @@ PowerShell before `dotnet run`).
 | `Display:CreditLine` | "Built by Computer Programming with C#, ASP.NET Core, and SignalR." | Line on the TV panel |
 | `Programs` | two CPTC degree links | Shown after release, on the keepsake card (with QR codes), on the TV, and in the gallery |
 
-## Tunnels
+## Tunnel
 
-Phones aren't on the laptop's network, so a tunnel gives the laptop a public HTTPS address. The
-tunnel client runs on the laptop and forwards to `http://localhost:5000`. Leave its window open all
-event; closing it kills the URL.
-
-### A. Microsoft Dev Tunnels (primary)
+Phones aren't on the laptop's network, so a [Microsoft Dev
+Tunnel](https://learn.microsoft.com/azure/developer/dev-tunnels/) gives the laptop a public HTTPS
+address. We used it for the whole expo with no issues. The tunnel client runs on the laptop and
+forwards to `http://localhost:5000`. Leave its window open all event; closing it kills the URL.
 
 Set this up **before** event day. The tunnel keeps the same URL every time it starts.
 
@@ -132,7 +132,7 @@ devtunnel create creature-lab
 devtunnel port create creature-lab -p 5000
 ```
 
-On the morning of the event (anonymous access expires; 12 hours lasts until 6 PM even if you create it early):
+On the day of the event (anonymous access expires; 12 hours covers a full day):
 
 ```powershell
 devtunnel access create creature-lab -a --expiration 12h
@@ -145,34 +145,18 @@ devtunnel host creature-lab
 ```
 
 Copy the `https://….devtunnels.ms` URL it prints and paste it into **Admin → Settings → Public
-URL**. Visitors see a one-time "Continue" page; tell them "tap Continue, it's our tunnel."
+URL**. Visitors see a one-time "Continue" page; tell them "tap Continue, it's our tunnel." If the
+tunnel stops, run `devtunnel host creature-lab` again; the URL stays the same and phones reconnect.
 
-### B. Cloudflare quick tunnel (backup)
-
-No account needed, and visitors go straight to the page, but the URL changes every time it starts.
-Install `cloudflared` once:
-
-```powershell
-winget install --id Cloudflare.cloudflared
-```
-
-To switch over: stop the Dev Tunnel (Ctrl+C), run the command below, and paste the
-`https://….trycloudflare.com` URL it prints into the admin page. If cloudflared restarts, paste the
-new URL again.
-
-```powershell
-cloudflared tunnel --url http://localhost:5000
-```
-
-### Notes for both tunnels
+### Notes
 
 - The SignalR client uses WebSockets with long-polling as the fallback, never Server-Sent Events
-  (quick tunnels don't support SSE).
+  (some tunnels and proxies don't support SSE).
 - Forwarded headers (`X-Forwarded-For`, `X-Forwarded-Proto`) are trusted from the tunnel client on
   localhost, so rate limiting sees each visitor's real IP.
 - Snapshot uploads are accepted only from the laptop itself, so a copy of `/tank` opened elsewhere
   can't add pictures.
-- If venue internet fails, put the laptop on a phone hotspot. Both tunnels work over a hotspot.
+- If venue internet fails, put the laptop on a phone hotspot. The tunnel works over a hotspot.
 
 ## The TV
 
@@ -218,56 +202,13 @@ To try the draw page from a phone on the same Wi-Fi without a tunnel, start the 
 `--urls http://0.0.0.0:5000` and browse to the laptop's IP. Over plain http, "Save to my phone" falls
 back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 
-## Event-day checklist
+## After an event
 
-### Tuesday 10/27: dress rehearsal
-
-- [ ] Create the Dev Tunnel access token, start the Dev Tunnel, set the URL, scan the TV QR code
-      from an iPhone and an Android **on cellular**; confirm the "Continue" page appears once, then
-      submit and approve a drawing.
-- [ ] Tap **Save to my phone** on both phones; check the card lands in Photos/Gallery.
-- [ ] Stop and restart the Dev Tunnel; confirm the URL is the same and phones reconnect.
-- [ ] Switch to the quick tunnel backup; paste its URL; confirm the QR code updates and the full flow
-      works.
-- [ ] Switch the laptop to a phone hotspot; confirm the Dev Tunnel still works.
-- [ ] Run the load test through the tunnel; leave `/tank` running for a few hours (soak test).
-- [ ] Seed 10–15 creatures drawn by students and approve them.
-
-### Wednesday 10/28: before doors open
-
-- [ ] Laptop plugged in; sleep off; notifications and Windows Update paused.
-- [ ] `git pull`, then start the server: `dotnet run --project src/CreatureLab --launch-profile event`.
-- [ ] Confirm the console shows the PIN you expect and the right data folder.
-- [ ] Create the Dev Tunnel access token (`devtunnel access create creature-lab -a --expiration 12h`),
-      then start `devtunnel host creature-lab`; paste the URL into Admin → Settings.
-- [ ] Open the TV in kiosk mode; check the QR code, header and panel look right.
-- [ ] Scan the QR code from a phone on cellular; release a creature; approve it; watch it arrive.
-- [ ] Moderator phones: open `<tunnel>/admin`, enter the PIN, leave sound on.
-- [ ] Admin → Settings: snapshots every 5 minutes; tap "Take snapshot now" once to check.
-- [ ] Print the sign: "Scan the code on the screen to invent a creature! First name or nickname
-      only." (It points at the live screen, not a URL.)
-
-### During the event
-
-- **Inappropriate drawing got through:** Admin → In tank → **Remove**, tap twice. It vanishes
-  from the TV and the ticker immediately.
-- **QR code stopped working:** restart `devtunnel host creature-lab` (the URL stays the same). If
-  the Dev Tunnel keeps failing, switch to the quick tunnel and paste its URL into Admin → Settings.
-- **Busy moment, one moderator:** turn on auto-approve (a yellow banner shows it's on); keep
-  watching the In tank list. Turn it off when things calm down.
-- **Server restarted:** phones and the TV reconnect on their own. The tank, queue, settings and
-  PIN all come back from `data/`.
-
-### After the event (6 PM)
-
-- [ ] Admin → Settings → **Download gallery** (all approved drawings, snapshots, `creatures.json`
-      and a ready-to-open `index.html` with a time-lapse). It includes artist names, so check it
-      before posting anywhere public.
-- [ ] Stop the tunnel (Ctrl+C). The public URL stops working.
-- [ ] Stop the server and back up the `data/` folder.
-- [ ] Optional: `./tools/make-timelapse.ps1` turns the snapshots into an MP4 (needs ffmpeg).
-
-To start a fresh tank, stop the server and move the `data/` folder somewhere else.
+**Admin → Settings → Download gallery** saves every approved drawing, the snapshots,
+`creatures.json` and a ready-to-open `index.html` with a time-lapse. It includes artist names, so
+check it before posting anywhere public. `./tools/make-timelapse.ps1` turns the snapshots into an
+MP4 (needs ffmpeg). To start a fresh tank, stop the server and move the `data/` folder somewhere
+else.
 
 ## How changes land
 

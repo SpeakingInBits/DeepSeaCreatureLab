@@ -15,10 +15,10 @@ public sealed class RuntimeSettingsTests : IDisposable
         new(_dir.Path, new LabSettings(url, autoApprove, interval), NullLogger<RuntimeSettings>.Instance);
 
     [Theory]
-    [InlineData("https://abc.trycloudflare.com", "https://abc.trycloudflare.com")]
-    [InlineData("  https://abc.trycloudflare.com/  ", "https://abc.trycloudflare.com")]
-    [InlineData("https://abc.trycloudflare.com/draw", "https://abc.trycloudflare.com")]
-    [InlineData("https://abc.trycloudflare.com/draw/", "https://abc.trycloudflare.com")]
+    [InlineData("https://abc-5000.usw2.devtunnels.ms", "https://abc-5000.usw2.devtunnels.ms")]
+    [InlineData("  https://abc-5000.usw2.devtunnels.ms/  ", "https://abc-5000.usw2.devtunnels.ms")]
+    [InlineData("https://abc-5000.usw2.devtunnels.ms/draw", "https://abc-5000.usw2.devtunnels.ms")]
+    [InlineData("https://abc-5000.usw2.devtunnels.ms/draw/", "https://abc-5000.usw2.devtunnels.ms")]
     [InlineData("https://abc-5000.usw2.devtunnels.ms/tank", "https://abc-5000.usw2.devtunnels.ms")]
     [InlineData("https://example.edu/creatures/draw", "https://example.edu/creatures")]
     [InlineData("", "")]
@@ -29,7 +29,7 @@ public sealed class RuntimeSettingsTests : IDisposable
     }
 
     [Theory]
-    [InlineData("abc.trycloudflare.com")]
+    [InlineData("abc-5000.usw2.devtunnels.ms")]
     [InlineData("ftp://example.com")]
     [InlineData("javascript:alert(1)")]
     public void NormalizeUrl_RejectsNonWebUrls(string raw)
@@ -42,11 +42,11 @@ public sealed class RuntimeSettingsTests : IDisposable
     public void Update_SavesUrlAndInterval_ButAutoApproveResetsOnRestart()
     {
         var settings = NewSettings();
-        Assert.True(settings.TryUpdate(new SettingsUpdate("https://abc.trycloudflare.com", true, 10), out _, out _));
+        Assert.True(settings.TryUpdate(new SettingsUpdate("https://abc-5000.usw2.devtunnels.ms", true, 10), out _, out _));
 
         var restarted = NewSettings();
 
-        Assert.Equal("https://abc.trycloudflare.com", restarted.Current.PublicBaseUrl);
+        Assert.Equal("https://abc-5000.usw2.devtunnels.ms", restarted.Current.PublicBaseUrl);
         Assert.Equal(10, restarted.Current.SnapshotIntervalMinutes);
         Assert.False(restarted.Current.AutoApprove);
     }
