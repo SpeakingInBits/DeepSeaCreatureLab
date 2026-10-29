@@ -75,8 +75,8 @@ The TV's QR code points at `PublicBaseUrl + "/draw"`. Set it in either place:
 
 - **Admin → Settings → Public URL.** Paste the tunnel URL and press Save. The QR code updates
   right away; no restart. Pasting a URL that ends in `/draw` is fine.
-- `PublicBaseUrl` in `appsettings.json` or the `PublicBaseUrl` environment variable (useful for a
-  permanent named tunnel).
+- `PublicBaseUrl` in `appsettings.json` or the `PublicBaseUrl` environment variable (the Dev
+  Tunnel's URL doesn't change, so you can set it once).
 
 Values saved on the admin page go into `data/settings.json` and win over `appsettings.json` on the
 next start. Auto-approve is deliberately not saved: it always starts **off** after a restart.
@@ -105,13 +105,12 @@ PowerShell before `dotnet run`).
 | `Display:CreditLine` | "Built by Computer Programming with C#, ASP.NET Core, and SignalR." | Line on the TV panel |
 | `Programs` | two CPTC degree links | Shown after release, on the keepsake card (with QR codes), on the TV, and in the gallery |
 
-## Tunnels
+## Tunnel
 
-Phones aren't on the laptop's network, so a tunnel gives the laptop a public HTTPS address. The
-tunnel client runs on the laptop and forwards to `http://localhost:5000`. Leave its window open all
-event; closing it kills the URL.
-
-### A. Microsoft Dev Tunnels (primary)
+Phones aren't on the laptop's network, so a [Microsoft Dev
+Tunnel](https://learn.microsoft.com/azure/developer/dev-tunnels/) gives the laptop a public HTTPS
+address. We used it for the whole expo with no issues. The tunnel client runs on the laptop and
+forwards to `http://localhost:5000`. Leave its window open all event; closing it kills the URL.
 
 Set this up **before** event day. The tunnel keeps the same URL every time it starts.
 
@@ -146,34 +145,18 @@ devtunnel host creature-lab
 ```
 
 Copy the `https://….devtunnels.ms` URL it prints and paste it into **Admin → Settings → Public
-URL**. Visitors see a one-time "Continue" page; tell them "tap Continue, it's our tunnel."
+URL**. Visitors see a one-time "Continue" page; tell them "tap Continue, it's our tunnel." If the
+tunnel stops, run `devtunnel host creature-lab` again; the URL stays the same and phones reconnect.
 
-### B. Cloudflare quick tunnel (backup)
-
-No account needed, and visitors go straight to the page, but the URL changes every time it starts.
-Install `cloudflared` once:
-
-```powershell
-winget install --id Cloudflare.cloudflared
-```
-
-To switch over: stop the Dev Tunnel (Ctrl+C), run the command below, and paste the
-`https://….trycloudflare.com` URL it prints into the admin page. If cloudflared restarts, paste the
-new URL again.
-
-```powershell
-cloudflared tunnel --url http://localhost:5000
-```
-
-### Notes for both tunnels
+### Notes
 
 - The SignalR client uses WebSockets with long-polling as the fallback, never Server-Sent Events
-  (quick tunnels don't support SSE).
+  (some tunnels and proxies don't support SSE).
 - Forwarded headers (`X-Forwarded-For`, `X-Forwarded-Proto`) are trusted from the tunnel client on
   localhost, so rate limiting sees each visitor's real IP.
 - Snapshot uploads are accepted only from the laptop itself, so a copy of `/tank` opened elsewhere
   can't add pictures.
-- If venue internet fails, put the laptop on a phone hotspot. Both tunnels work over a hotspot.
+- If venue internet fails, put the laptop on a phone hotspot. The tunnel works over a hotspot.
 
 ## The TV
 

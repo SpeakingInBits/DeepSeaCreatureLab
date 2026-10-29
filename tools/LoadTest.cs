@@ -6,7 +6,7 @@
 // hub the way the draw page does, submits a randomly generated creature, and waits to hear
 // whether it was approved. With --pin, the script also plays moderator and decides each one.
 //
-//   dotnet run tools/LoadTest.cs -- --url https://xyz.trycloudflare.com --phones 50 --minutes 3 --pin 123456
+//   dotnet run tools/LoadTest.cs -- --url https://xyz-5000.usw2.devtunnels.ms --phones 50 --minutes 3 --pin 123456
 //
 // The server allows 20 submissions per IP per minute, and every simulated phone shares your
 // IP, so start the server with a higher limit first:  $env:RateLimit__MaxPerIpPerMinute = "1000"

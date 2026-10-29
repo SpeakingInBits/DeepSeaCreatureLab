@@ -53,7 +53,7 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 });
 builder.Services.AddSignalR().AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(enumConverter));
 
-// Behind cloudflared or Dev Tunnels, the real client IP and https scheme arrive in
+// Behind the Dev Tunnel, the real client IP and https scheme arrive in
 // X-Forwarded-* headers from the tunnel client on this machine (loopback, trusted by default).
 builder.Services.Configure<ForwardedHeadersOptions>(o =>
     o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);

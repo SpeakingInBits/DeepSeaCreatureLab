@@ -85,7 +85,7 @@ public sealed class RuntimeSettings
     }
 
     /// <summary>
-    /// Accepts what staff are likely to paste ("https://x.trycloudflare.com/draw/",
+    /// Accepts what staff are likely to paste ("https://x-5000.usw2.devtunnels.ms/draw/",
     /// with spaces, etc.) and returns just the base URL. Empty clears it.
     /// Returns null (with an error) when it isn't an http(s) URL.
     /// </summary>

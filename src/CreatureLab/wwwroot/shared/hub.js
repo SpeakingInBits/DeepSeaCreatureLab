@@ -1,6 +1,6 @@
 // SignalR connection setup shared by all three pages, so they all get the same rules:
-// WebSockets first, long polling as the fallback, never Server-Sent Events (Cloudflare
-// quick tunnels don't support them), and reconnect forever (the TV runs all day).
+// WebSockets first, long polling as the fallback, never Server-Sent Events (some
+// tunnels and proxies don't support them), and reconnect forever (the TV runs all day).
 /* global signalR */
 
 const RETRY_DELAYS_MS = [0, 1000, 2000, 5000, 10000];
