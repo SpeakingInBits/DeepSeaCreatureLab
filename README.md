@@ -8,6 +8,15 @@ approves it, it swims onto the big screen. A side panel shows the system working
 admin page and it swims onto the TV; then the crew removes a creature and changes
 settings](docs/walkthrough.gif)
 
+## Program Expo 2026
+
+Visitors invented 22 creatures at the expo. This is the tank at closing time. Click it for the
+gallery, with a time-lapse of the whole afternoon and every drawing.
+
+[![The tank at 6 PM, full of glowing creatures drawn by visitors](docs/gallery/snapshots/20261028-180014.jpg)](https://speakinginbits.github.io/DeepSeaCreatureLab/)
+
+## How it works
+
 One ASP.NET Core app on the booth laptop serves everything; phones reach it through a tunnel.
 See [DESIGN.md](DESIGN.md) for the full design.
 
@@ -268,12 +277,15 @@ SpeakingInBits GitHub App (`speakinginbits-bot[bot]`), so a person reviews and a
 
 GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) builds the app and runs
 `dotnet test` on Windows for every pull request and every push to `main`.
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) publishes `docs/gallery` to GitHub
+Pages whenever it changes on `main`.
 
 ## Project layout
 
 ```
 DESIGN.md                      engineering design document
 docs/walkthrough.gif           the visitor and crew walkthrough at the top of this README
+docs/gallery/                  the Program Expo 2026 gallery, published to GitHub Pages
 src/CreatureLab/
   Program.cs                   wiring: services, middleware, endpoints, hub
   appsettings.json             settings (see table above); appsettings.Local.json for secrets

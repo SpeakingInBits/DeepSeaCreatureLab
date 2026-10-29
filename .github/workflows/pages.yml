@@ -1,0 +1,38 @@
+# Publishes the Program Expo gallery (docs/gallery) to GitHub Pages whenever it changes on main.
+name: Gallery
+
+on:
+  push:
+    branches: [main]
+    paths: [docs/gallery/**, .github/workflows/pages.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a deploy that's already going finish; a newer one waits its turn.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/gallery
+
+      - id: deployment
+        uses: actions/deploy-pages@v5
