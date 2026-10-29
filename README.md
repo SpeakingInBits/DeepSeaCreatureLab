@@ -1,8 +1,9 @@
 # Deep Sea Creature Lab
 
-A shared, live deep-sea tank for the Program Expo (Wed Oct 28, 2026, 3–6 PM). Visitors scan the QR
-code on the TV, draw a creature on their phone, name it, sign it, and release it. After a crew member
-approves it, it swims onto the big screen. A side panel shows the system working in real time.
+A shared, live deep-sea tank, built for the CPTC Program Expo on October 28, 2026. Visitors scan
+the QR code on the TV, draw a creature on their phone, name it, sign it, and release it. After a
+crew member approves it, it swims onto the big screen. A side panel shows the system working in
+real time.
 
 ![A visitor draws an anglerfish on their phone and releases it; a crew member approves it on the
 admin page and it swims onto the TV; then the crew removes a creature and changes
@@ -132,7 +133,7 @@ devtunnel create creature-lab
 devtunnel port create creature-lab -p 5000
 ```
 
-On the morning of the event (anonymous access expires; 12 hours lasts until 6 PM even if you create it early):
+On the day of the event (anonymous access expires; 12 hours covers a full day):
 
 ```powershell
 devtunnel access create creature-lab -a --expiration 12h
@@ -218,56 +219,13 @@ To try the draw page from a phone on the same Wi-Fi without a tunnel, start the 
 `--urls http://0.0.0.0:5000` and browse to the laptop's IP. Over plain http, "Save to my phone" falls
 back to press-and-hold. The tunnel's HTTPS gives the full share sheet.
 
-## Event-day checklist
+## After an event
 
-### Tuesday 10/27: dress rehearsal
-
-- [ ] Create the Dev Tunnel access token, start the Dev Tunnel, set the URL, scan the TV QR code
-      from an iPhone and an Android **on cellular**; confirm the "Continue" page appears once, then
-      submit and approve a drawing.
-- [ ] Tap **Save to my phone** on both phones; check the card lands in Photos/Gallery.
-- [ ] Stop and restart the Dev Tunnel; confirm the URL is the same and phones reconnect.
-- [ ] Switch to the quick tunnel backup; paste its URL; confirm the QR code updates and the full flow
-      works.
-- [ ] Switch the laptop to a phone hotspot; confirm the Dev Tunnel still works.
-- [ ] Run the load test through the tunnel; leave `/tank` running for a few hours (soak test).
-- [ ] Seed 10–15 creatures drawn by students and approve them.
-
-### Wednesday 10/28: before doors open
-
-- [ ] Laptop plugged in; sleep off; notifications and Windows Update paused.
-- [ ] `git pull`, then start the server: `dotnet run --project src/CreatureLab --launch-profile event`.
-- [ ] Confirm the console shows the PIN you expect and the right data folder.
-- [ ] Create the Dev Tunnel access token (`devtunnel access create creature-lab -a --expiration 12h`),
-      then start `devtunnel host creature-lab`; paste the URL into Admin → Settings.
-- [ ] Open the TV in kiosk mode; check the QR code, header and panel look right.
-- [ ] Scan the QR code from a phone on cellular; release a creature; approve it; watch it arrive.
-- [ ] Moderator phones: open `<tunnel>/admin`, enter the PIN, leave sound on.
-- [ ] Admin → Settings: snapshots every 5 minutes; tap "Take snapshot now" once to check.
-- [ ] Print the sign: "Scan the code on the screen to invent a creature! First name or nickname
-      only." (It points at the live screen, not a URL.)
-
-### During the event
-
-- **Inappropriate drawing got through:** Admin → In tank → **Remove**, tap twice. It vanishes
-  from the TV and the ticker immediately.
-- **QR code stopped working:** restart `devtunnel host creature-lab` (the URL stays the same). If
-  the Dev Tunnel keeps failing, switch to the quick tunnel and paste its URL into Admin → Settings.
-- **Busy moment, one moderator:** turn on auto-approve (a yellow banner shows it's on); keep
-  watching the In tank list. Turn it off when things calm down.
-- **Server restarted:** phones and the TV reconnect on their own. The tank, queue, settings and
-  PIN all come back from `data/`.
-
-### After the event (6 PM)
-
-- [ ] Admin → Settings → **Download gallery** (all approved drawings, snapshots, `creatures.json`
-      and a ready-to-open `index.html` with a time-lapse). It includes artist names, so check it
-      before posting anywhere public.
-- [ ] Stop the tunnel (Ctrl+C). The public URL stops working.
-- [ ] Stop the server and back up the `data/` folder.
-- [ ] Optional: `./tools/make-timelapse.ps1` turns the snapshots into an MP4 (needs ffmpeg).
-
-To start a fresh tank, stop the server and move the `data/` folder somewhere else.
+**Admin → Settings → Download gallery** saves every approved drawing, the snapshots,
+`creatures.json` and a ready-to-open `index.html` with a time-lapse. It includes artist names, so
+check it before posting anywhere public. `./tools/make-timelapse.ps1` turns the snapshots into an
+MP4 (needs ffmpeg). To start a fresh tank, stop the server and move the `data/` folder somewhere
+else.
 
 ## How changes land
 
