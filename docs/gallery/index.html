@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Sea Creature Lab · Gallery</title>
+<style>
+  :root { --abyss:#020b16; --deep:#041a33; --glow:#97d700; --purple:#502d7f; --text:#e8f6ff; --muted:#8fb3c9; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--text);
+         background: linear-gradient(#07305a, var(--deep) 30%, var(--abyss)); background-attachment: fixed; min-height:100vh; }
+  header, main, footer { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+  .badge { display:inline-block; background:var(--purple); color:#fff; font-weight:700; letter-spacing:.08em;
+           padding:4px 12px; border-radius:999px; font-size:13px; }
+  h1 { font-size: clamp(28px, 5vw, 48px); margin: 10px 0 4px; }
+  h2 { margin: 32px 0 12px; }
+  .sub { color: var(--muted); margin: 0; }
+  .player { background: rgba(0,0,0,.35); border:1px solid rgba(140,220,255,.18); border-radius: 16px; padding: 12px; }
+  .player img { width:100%; display:block; border-radius: 10px; background:#000; }
+  .controls { display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap: wrap; }
+  .controls input[type=range] { flex:1; min-width: 160px; }
+  button { font: inherit; background: var(--glow); color:#02121f; border:0; border-radius: 999px; padding: 8px 18px; font-weight:700; cursor:pointer; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  figure { margin:0; background: rgba(255,255,255,.05); border:1px solid rgba(140,220,255,.15); border-radius: 14px; overflow:hidden; }
+  figure .art { aspect-ratio: 1; display:grid; place-items:center; padding: 12px;
+                background: radial-gradient(circle at 50% 40%, #0b4a7a, #041a33 70%); }
+  figure img { max-width:100%; max-height:100%; filter: drop-shadow(0 0 8px rgba(120,220,255,.45)); }
+  figcaption { padding: 10px 12px; }
+  figcaption strong { display:block; overflow-wrap:anywhere; }
+  figcaption span { color: var(--muted); font-size: 14px; }
+  footer { color: var(--muted); border-top: 1px solid rgba(140,220,255,.15); }
+  footer a { color: var(--glow); }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">COMPUTER PROGRAMMING</span>
+  <h1>Deep Sea Creature Lab</h1>
+  <p class="sub" id="summary"></p>
+</header>
+<main>
+  <section id="timelapse" hidden>
+    <h2>Time-lapse</h2>
+    <div class="player">
+      <img id="frame" alt="Snapshot of the tank">
+      <div class="controls">
+        <button id="play" type="button">Pause</button>
+        <input id="scrub" type="range" min="0" value="0" aria-label="Snapshot">
+        <span id="frame-label"></span>
+      </div>
+    </div>
+  </section>
+  <section>
+    <h2>Creatures</h2>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+<footer>
+  <p>Deep Sea Creature Lab · Computer Programming · Program Expo 2026</p>
+  <p>Like this? Learn how to build it:</p>
+  <ul id="programs"></ul>
+</footer>
+<script id="data" type="application/json">{"creatures":[{"file":"creatures/20261028-145711-bing-the-floater-by-a-mystery-diver.png","creatureName":"Bing The Floater","artistName":null,"artistDisplay":"a mystery diver","habitat":"floater","createdAt":"2026-10-28T21:57:11.9561078+00:00","approvedAt":"2026-10-28T21:57:18.5809052+00:00"},{"file":"creatures/20261028-150627-patrick-the-starfish-by-a-mystery-diver.png","creatureName":"Patrick The Starfish","artistName":null,"artistDisplay":"a mystery diver","habitat":"swimmer","createdAt":"2026-10-28T22:06:27.2896882+00:00","approvedAt":"2026-10-28T22:06:36.4790858+00:00"},{"file":"creatures/20261028-150852-s-h-m-e-e-by-a-mystery-diver.png","creatureName":"S H M E E","artistName":null,"artistDisplay":"a mystery diver","habitat":"bottomCrawler","createdAt":"2026-10-28T22:08:52.6559817+00:00","approvedAt":"2026-10-28T22:08:57.5281392+00:00"},{"file":"creatures/20261028-151716-jarvis-by-jarvis.png","creatureName":"Jarvis","artistName":"Jarvis","artistDisplay":"Jarvis","habitat":"bottomCrawler","createdAt":"2026-10-28T22:17:16.1268185+00:00","approvedAt":"2026-10-28T22:17:56.7627703+00:00"},{"file":"creatures/20261028-151846-cody-by-a-mystery-diver.png","creatureName":"Cody","artistName":null,"artistDisplay":"a mystery diver","habitat":"bottomCrawler","createdAt":"2026-10-28T22:18:46.785394+00:00","approvedAt":"2026-10-28T22:18:51.3607951+00:00"},{"file":"creatures/20261028-154053-angel-the-jelly-by-athena.png","creatureName":"Angel The Jelly","artistName":"Athena","artistDisplay":"Athena","habitat":"floater","createdAt":"2026-10-28T22:40:53.0764889+00:00","approvedAt":"2026-10-28T22:40:56.2392011+00:00"},{"file":"creatures/20261028-155614-gloop-by-friend.png","creatureName":"Gloop","artistName":"Friend","artistDisplay":"Friend","habitat":"floater","createdAt":"2026-10-28T22:56:14.8147819+00:00","approvedAt":"2026-10-28T22:56:19.4693283+00:00"},{"file":"creatures/20261028-155804-cutie-patootie-by-a-mystery-diver.png","creatureName":"Cutie Patootie","artistName":null,"artistDisplay":"a mystery diver","habitat":"floater","createdAt":"2026-10-28T22:58:04.8323353+00:00","approvedAt":"2026-10-28T22:58:16.2499172+00:00"},{"file":"creatures/20261028-160053-lil-derp-by-sarah.png","creatureName":"Lil Derp","artistName":"Sarah","artistDisplay":"Sarah","habitat":"floater","createdAt":"2026-10-28T23:00:53.2381369+00:00","approvedAt":"2026-10-28T23:03:34.4246162+00:00"},{"file":"creatures/20261028-163510-krusty-crab-by-mr-crabbs.png","creatureName":"Krusty Crab","artistName":"Mr.Crabbs","artistDisplay":"Mr.Crabbs","habitat":"bottomCrawler","createdAt":"2026-10-28T23:35:10.0984757+00:00","approvedAt":"2026-10-28T23:35:10.0984768+00:00"},{"file":"creatures/20261028-163617-bob-by-maliki.png","creatureName":"Bob","artistName":"Maliki","artistDisplay":"Maliki","habitat":"swimmer","createdAt":"2026-10-28T23:36:17.0413572+00:00","approvedAt":"2026-10-28T23:36:17.0413584+00:00"},{"file":"creatures/20261028-164551-ketchup-by-kettsch-upp.png","creatureName":"Ketchup","artistName":"Kettsch Upp","artistDisplay":"Kettsch Upp","habitat":"floater","createdAt":"2026-10-28T23:45:51.0658215+00:00","approvedAt":"2026-10-28T23:45:51.0658224+00:00"},{"file":"creatures/20261028-164715-toast-by-exe.png","creatureName":"Toast","artistName":"Exe","artistDisplay":"Exe","habitat":"swimmer","createdAt":"2026-10-28T23:47:15.2487737+00:00","approvedAt":"2026-10-28T23:47:15.2487749+00:00"},{"file":"creatures/20261028-165218-rawr-by-a-mystery-diver.png","creatureName":"Rawr","artistName":null,"artistDisplay":"a mystery diver","habitat":"swimmer","createdAt":"2026-10-28T23:52:18.0523453+00:00","approvedAt":"2026-10-28T23:52:18.0523466+00:00"},{"file":"creatures/20261028-165235-bubble-by-ofelia.png","creatureName":"Bubble","artistName":"Ofelia","artistDisplay":"Ofelia","habitat":"swimmer","createdAt":"2026-10-28T23:52:35.2170364+00:00","approvedAt":"2026-10-28T23:52:35.2170377+00:00"},{"file":"creatures/20261028-165407-junior-by-emily.png","creatureName":"Junior","artistName":"Emily","artistDisplay":"Emily","habitat":"swimmer","createdAt":"2026-10-28T23:54:07.0378272+00:00","approvedAt":"2026-10-28T23:54:07.0378283+00:00"},{"file":"creatures/20261028-165518-sprunki-by-a-mystery-diver.png","creatureName":"Sprunki","artistName":null,"artistDisplay":"a mystery diver","habitat":"swimmer","createdAt":"2026-10-28T23:55:18.5804673+00:00","approvedAt":"2026-10-28T23:55:18.5804698+00:00"},{"file":"creatures/20261028-170533-ggles-by-a-mystery-diver.png","creatureName":"GGles","artistName":null,"artistDisplay":"a mystery diver","habitat":"floater","createdAt":"2026-10-29T00:05:33.8051135+00:00","approvedAt":"2026-10-29T00:05:33.8051147+00:00"},{"file":"creatures/20261028-172457-coolness-by-a-mystery-diver.png","creatureName":"Coolness","artistName":null,"artistDisplay":"a mystery diver","habitat":"floater","createdAt":"2026-10-29T00:24:57.4262344+00:00","approvedAt":"2026-10-29T00:24:57.4262355+00:00"},{"file":"creatures/20261028-172607-shelly-by-a-mystery-diver.png","creatureName":"Shelly","artistName":null,"artistDisplay":"a mystery diver","habitat":"bottomCrawler","createdAt":"2026-10-29T00:26:07.4485408+00:00","approvedAt":"2026-10-29T00:26:07.4485418+00:00"},{"file":"creatures/20261028-173933-dolly-by-a-mystery-diver.png","creatureName":"Dolly","artistName":null,"artistDisplay":"a mystery diver","habitat":"floater","createdAt":"2026-10-29T00:39:33.5492699+00:00","approvedAt":"2026-10-29T00:39:33.5492712+00:00"},{"file":"creatures/20261028-175131-timothy-by-zaya.png","creatureName":"Timothy","artistName":"Zaya","artistDisplay":"Zaya","habitat":"swimmer","createdAt":"2026-10-29T00:51:31.1556323+00:00","approvedAt":"2026-10-29T00:51:31.1556335+00:00"}],"snapshots":["snapshots/20261028-143014.jpg","snapshots/20261028-143514.jpg","snapshots/20261028-144014.jpg","snapshots/20261028-144514.jpg","snapshots/20261028-145014.jpg","snapshots/20261028-145515.jpg","snapshots/20261028-150014.jpg","snapshots/20261028-150514.jpg","snapshots/20261028-151014.jpg","snapshots/20261028-151514.jpg","snapshots/20261028-152014.jpg","snapshots/20261028-152514.jpg","snapshots/20261028-153014.jpg","snapshots/20261028-153514.jpg","snapshots/20261028-154014.jpg","snapshots/20261028-154514.jpg","snapshots/20261028-155014.jpg","snapshots/20261028-155514.jpg","snapshots/20261028-160014.jpg","snapshots/20261028-160514.jpg","snapshots/20261028-161014.jpg","snapshots/20261028-161514.jpg","snapshots/20261028-162014.jpg","snapshots/20261028-162514.jpg","snapshots/20261028-163014.jpg","snapshots/20261028-163514.jpg","snapshots/20261028-164014.jpg","snapshots/20261028-164514.jpg","snapshots/20261028-165014.jpg","snapshots/20261028-165514.jpg","snapshots/20261028-170014.jpg","snapshots/20261028-170514.jpg","snapshots/20261028-171014.jpg","snapshots/20261028-171514.jpg","snapshots/20261028-172014.jpg","snapshots/20261028-172514.jpg","snapshots/20261028-173014.jpg","snapshots/20261028-173514.jpg","snapshots/20261028-174014.jpg","snapshots/20261028-174514.jpg","snapshots/20261028-175014.jpg","snapshots/20261028-175514.jpg","snapshots/20261028-180014.jpg"],"programs":[{"label":"Computer Programming (AAT degree)","url":"https://www.cptc.edu/programs/computer-programming"},{"label":"B.S. in Computer Science and Cyber-Physical Software Engineering","url":"https://www.cptc.edu/programs/BSCompSci"}]}</script>
+<script>
+  const data = JSON.parse(document.getElementById("data").textContent);
+  const fmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+
+  document.getElementById("summary").textContent =
+    `${data.creatures.length} creatures invented by visitors at the Program Expo.`;
+
+  const grid = document.getElementById("grid");
+  if (data.creatures.length === 0) {
+    grid.innerHTML = '<p class="empty">No creatures yet.</p>';
+  }
+  for (const c of data.creatures) {
+    const fig = document.createElement("figure");
+    const art = document.createElement("div");
+    art.className = "art";
+    const img = document.createElement("img");
+    img.src = c.file;
+    img.alt = c.creatureName;
+    img.loading = "lazy";
+    art.append(img);
+    const cap = document.createElement("figcaption");
+    const name = document.createElement("strong");
+    name.textContent = c.creatureName;
+    const by = document.createElement("span");
+    by.textContent = `by ${c.artistDisplay} · ${fmt.format(new Date(c.createdAt))}`;
+    cap.append(name, by);
+    fig.append(art, cap);
+    grid.append(fig);
+  }
+
+  const list = document.getElementById("programs");
+  for (const p of data.programs) {
+    if (!/^https?:\/\//i.test(p.url)) continue;
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = p.url;
+    a.textContent = p.label;
+    a.target = "_blank";
+    a.rel = "noopener";
+    li.append(a);
+    list.append(li);
+  }
+
+  if (data.snapshots.length > 0) {
+    document.getElementById("timelapse").hidden = false;
+    const frame = document.getElementById("frame");
+    const scrub = document.getElementById("scrub");
+    const label = document.getElementById("frame-label");
+    const play = document.getElementById("play");
+    scrub.max = data.snapshots.length - 1;
+    let index = 0, timer = null;
+
+    const show = (i) => {
+      index = i;
+      scrub.value = i;
+      frame.src = data.snapshots[i];
+      const m = data.snapshots[i].match(/(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/);
+      label.textContent = m ? `${m[4]}:${m[5]}` : `${i + 1} / ${data.snapshots.length}`;
+    };
+    const start = () => { timer = setInterval(() => show((index + 1) % data.snapshots.length), 700); play.textContent = "Pause"; };
+    const stop = () => { clearInterval(timer); timer = null; play.textContent = "Play"; };
+
+    play.addEventListener("click", () => (timer ? stop() : start()));
+    scrub.addEventListener("input", () => { stop(); show(Number(scrub.value)); });
+    show(0);
+    start();
+  }
+</script>
+</body>
+</html>
